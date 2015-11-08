@@ -1,13 +1,30 @@
+import processing.serial.*; //Import serial code
 import processing.pdf.*;          // Import PDF code
+
+Serial myPort;    // The serial port
+
+//variables used for graph
 int recordOn = 0;
 int H =300;
 int W =1280;
-int TABLE_SIZE = 320;
-int x_axis_increment = 4;
+int x_axis_increment = 1;
 int prev_y=0, current_x_axis;
 int[] data_table;
 int data_table_counter;
+int drawCounter;
+int TABLE_SIZE = W/x_axis_increment;
 
+void init_serial()
+{
+  int lf = 10;      // ASCII linefeed
+  printArray(Serial.list()); 
+  myPort = new Serial(this, Serial.list()[6], 9600); 
+  myPort.bufferUntil(lf);
+}
+
+void serialEvent(Serial p) {  
+  graph_add_buffer(Integer.parseInt(p.readString().trim()));  
+} 
 
 void graph_add(int data)
 {
@@ -72,16 +89,18 @@ void drawAxis()
 
 void setup() {
   data_table = new int[TABLE_SIZE];
-   drawAxis();
-   init_buffer();
+  drawAxis();
+  init_buffer();
+  init_serial();
 }
 
 void draw() {
-  int i,data=0;
-  data = (int)random(H/2);
-  //graph_add(data);
-  graph_add_buffer(data);
+  int start, finish;
+  start = millis();  
+  //int data=0;
+  //data = (int)random(H/2);
   draw_buffer();
-  delay(10);
-    
+  finish = millis();
+  println(finish-start);
+  //delay(10);  
 }
